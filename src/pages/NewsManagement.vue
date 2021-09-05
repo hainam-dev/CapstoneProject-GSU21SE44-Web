@@ -492,7 +492,7 @@ export default {
   },
   created: function () {
     // axios
-    //   .get(`https://service.mumbi.xyz/api/News/GetAllNews`)
+    //   .get(`https://mumbi.xyz/api/News/GetAllNews`)
     //   .then((rs) => {
     //     this.tableData = rs.data.data;
     //   })
@@ -501,7 +501,7 @@ export default {
     //     console.log(e);
     //   });
     axios
-      .get(`https://service.mumbi.xyz/api/News/GetNews`)
+      .get(`https://mumbi.xyz/api/News/GetNews`)
       .then((rs) => {
         this.totalCount = rs.data.total;
         this.tableData = rs.data.data;
@@ -511,7 +511,7 @@ export default {
         console.log(e);
       });
     axios
-      .get(`https://service.mumbi.xyz/api/NewsType/GetAllNewsType`)
+      .get(`https://mumbi.xyz/api/NewsType/GetAllNewsType`)
       .then((res) => {
         this.listtype = res.data.data;
         this.tableData1 = res.data.data;
@@ -529,7 +529,7 @@ export default {
     },
     async handleCurrentChange(val) {
       axios
-        .get(`https://service.mumbi.xyz/api/News/GetNews?PageNumber=${val}`)
+        .get(`https://mumbi.xyz/api/News/GetNews?PageNumber=${val}`)
         .then((rs) => {
           this.tableData = rs.data.data;
           this.searchResult = rs.data.data;
@@ -576,14 +576,14 @@ export default {
           let NewsId = this.tableData1[this.editedIndex].id;
           try {
             await axios.put(
-              `https://service.mumbi.xyz/api/NewsType/UpdateNewsType/` + NewsId,
+              `https://mumbi.xyz/api/NewsType/UpdateNewsType/` + NewsId,
               {
                 id: NewsId,
                 type: this.form1.typeNews,
               }
             );
             await axios
-              .get(`https://service.mumbi.xyz/api/NewsType/GetAllNewsType`)
+              .get(`https://mumbi.xyz/api/NewsType/GetAllNewsType`)
               .then((rs) => {
                 this.tableData1 = rs.data.data;
               })
@@ -592,7 +592,7 @@ export default {
                 console.log(e);
               });
             await axios
-              .get(`https://service.mumbi.xyz/api/News/GetNews`)
+              .get(`https://mumbi.xyz/api/News/GetNews`)
               .then((rs) => {
                 this.tableData = rs.data.data;
                 this.totalCount = rs.data.total;
@@ -630,7 +630,7 @@ export default {
               await ref.put(this.form.imageFile);
               let imageUrl1 = await ref.getDownloadURL();
               await axios.put(
-                `https://service.mumbi.xyz/api/News/UpdateNews/` + NewsId,
+                `https://mumbi.xyz/api/News/UpdateNews/` + NewsId,
                 {
                   id: NewsId,
                   title: this.form.title,
@@ -638,11 +638,11 @@ export default {
                   imageURL: imageUrl1,
                   typeId: this.form.typeName,
                   estimatedFinishTime: this.form.estimateTime1,
-                  lastModifiedBy: userInfo.id,
+                  lastModifiedBy: userInfo.fullname,
                 }
               );
               await axios
-                .get(`https://service.mumbi.xyz/api/News/GetNews`)
+                .get(`https://mumbi.xyz/api/News/GetNews`)
                 .then((rs) => {
                   this.tableData = rs.data.data;
                   this.totalCount = rs.data.total;
@@ -653,7 +653,7 @@ export default {
                 });
             } else {
               await axios.put(
-                `https://service.mumbi.xyz/api/News/UpdateNews/` + NewsId,
+                `https://mumbi.xyz/api/News/UpdateNews/` + NewsId,
                 {
                   imageURL: this.form.imageUrl,
                   id: NewsId,
@@ -661,11 +661,11 @@ export default {
                   newsContent: this.form.NewsContent,
                   typeId: this.form.typeName,
                   estimatedFinishTime: this.form.estimateTime1,
-                  lastModifiedBy: userInfo.id,
+                  lastModifiedBy: userInfo.fullname,
                 }
               );
               await axios
-                .get(`https://service.mumbi.xyz/api/News/GetNews`)
+                .get(`https://mumbi.xyz/api/News/GetNews`)
                 .then((rs) => {
                   this.tableData = rs.data.data;
                 })
@@ -719,21 +719,21 @@ export default {
               await ref.put(this.addNews.imageFile);
               let imageUrl = await ref.getDownloadURL();
 
-              await axios.post(`https://service.mumbi.xyz/api/News/AddNews`, {
+              await axios.post(`https://mumbi.xyz/api/News/AddNews`, {
                 title: titleNews,
                 newsContent: NewsContent,
                 imageURL: imageUrl,
                 typeId: type,
                 estimatedFinishTime: time,
-                createdBy: userInfo.id,
+                createdBy: userInfo.fullname,
               });
             } else {
-              await axios.post(`https://service.mumbi.xyz/api/News/AddNews`, {
+              await axios.post(`https://mumbi.xyz/api/News/AddNews`, {
                 title: titleNews,
                 newsContent: NewsContent,
                 typeId: type,
                 estimatedFinishTime: time,
-                createdBy: userInfo.id,
+                createdBy: userInfo.fullname,
               });
             }
             this.$message({
@@ -741,7 +741,7 @@ export default {
               message: `Tạo tin tức thành công !`,
             });
             await axios
-              .get(`https://service.mumbi.xyz/api/News/GetNews`)
+              .get(`https://mumbi.xyz/api/News/GetNews`)
               .then((rs) => {
                 this.tableData = rs.data.data;
                 this.totalCount = rs.data.total;
@@ -812,7 +812,7 @@ export default {
             this.NewsIdDelete = row.id;
             axios
               .put(
-                `https://service.mumbi.xyz/api/News/DeleteNews/` +
+                `https://mumbi.xyz/api/News/DeleteNews/` +
                   this.NewsIdDelete
               )
               .then((response) => {});
@@ -860,14 +860,14 @@ export default {
             this.NewsIdDelete = row.id;
             axios
               .put(
-                `https://service.mumbi.xyz/api/NewsType/DeleteNewsType/` +
+                `https://mumbi.xyz/api/NewsType/DeleteNewsType/` +
                   this.NewsIdDelete
               )
               .then((response) => {
                 setTimeout(async () => {
                   await axios
                     .get(
-                      `https://service.mumbi.xyz/api/NewsType/GetAllNewsType`
+                      `https://mumbi.xyz/api/NewsType/GetAllNewsType`
                     )
                     .then((rs) => {
                       this.tableData1 = rs.data.data;
@@ -906,7 +906,7 @@ export default {
       }
       try {
         let result = await axios
-          .get(`https://service.mumbi.xyz/api/News/GetNews?SearchValue=${e}`)
+          .get(`https://mumbi.xyz/api/News/GetNews?SearchValue=${e}`)
           .then((rs) => {
             this.totalCount = rs.data.total;
             this.searchResult = rs.data.data;
@@ -945,7 +945,7 @@ export default {
     addNewNews() {
       this.dialogFormAddVisible = true;
       axios
-        .get(`https://service.mumbi.xyz/api/NewsType/GetAllNewsType`)
+        .get(`https://mumbi.xyz/api/NewsType/GetAllNewsType`)
         .then((res) => {
           this.listtype = res.data.data;
           this.tableData1 = res.data.data;

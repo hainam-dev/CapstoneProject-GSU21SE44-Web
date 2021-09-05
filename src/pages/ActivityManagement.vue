@@ -29,11 +29,29 @@
           <el-input v-model="addNews.newsTitle" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item
-          label="Độ tuổi (tuần tuổi)"
+          label="Trạng thái"
           :label-width="formLabelWidth"
-          prop="suitableAge"
+          prop="status"
         >
-          <el-input v-model.number="addNews.suitableAge"></el-input>
+          <el-radio-group v-model="addNews.status">
+            <el-radio label="Thai nhi"></el-radio>
+            <el-radio label="Em bé"></el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="Độ tuổi từ" :label-width="formLabelWidth">
+          <el-col :span="11">
+            <el-form-item prop="minAge">
+              <el-input v-model.number="addNews.minAge"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col class="line" :span="2" style="text-align: center">
+            Đến
+          </el-col>
+          <el-col :span="11">
+            <el-form-item prop="maxAge">
+              <el-input v-model.number="addNews.maxAge"></el-input>
+            </el-form-item>
+          </el-col>
         </el-form-item>
         <el-form-item
           label="Loại hoạt động"
@@ -58,6 +76,7 @@
           label="File âm thanh"
           :label-width="formLabelWidth"
           prop="imageUrl"
+          v-if="this.addNews.typeName != 4"
         >
           <el-row type="flex" class="row-bg" justify="left">
             <el-form-item v-if="addNews.imageUrl != ''">
@@ -78,10 +97,20 @@
             <!-- We can't use a normal button element here, as it would become the target of the label. -->
             <div class="select-button">
               <!-- Display the filename if a file has been selected. -->
-              
-              <div style="cursor: pointer; text-align: center; border: 2px solid #67c23a;
-  border-radius: 5px; background-color: #67c23a; color: white; width: 120px"> Chọn File</div>
-              
+
+              <div
+                style="
+                  cursor: pointer;
+                  text-align: center;
+                  border: 2px solid #67c23a;
+                  border-radius: 5px;
+                  background-color: #67c23a;
+                  color: white;
+                  width: 120px;
+                "
+              >
+                Chọn File
+              </div>
             </div>
             <!-- Now, the file input that we hide. -->
             <input
@@ -93,6 +122,57 @@
               v-on:change="handleFileChangeOnCreateNews"
             />
           </label>
+        </el-form-item>
+        <el-row
+          v-if="this.addNews.typeName === 4"
+          type="flex"
+          class="row-bg"
+          justify="center"
+        >
+          <el-form-item style="width: 50%" prop="imageUrl">
+            <el-image style="width: 100%" v-if="addNews.imageUrl === ''">
+              <div slot="error" class="image-slot text-center">
+                <i style="font-size: 3rem" class="el-icon-picture-outline"></i>
+              </div>
+            </el-image>
+
+            <img style="width: 100%" :src="addNews.imageUrl" />
+          </el-form-item>
+        </el-row>
+        <label
+          v-if="this.addNews.typeName === 4"
+          class="file-select"
+          style="margin-left: 80%"
+        >
+          <!-- We can't use a normal button element here, as it would become the target of the label. -->
+          <div class="select-button">
+            <!-- Display the filename if a file has been selected. -->
+            <span
+              v-if="uploadingImage"
+              style="
+                padding: 1rem;
+                color: white;
+                background-color: #2ea169;
+                border-radius: 0.3rem;
+                text-align: center;
+                font-weight: bold;
+              "
+              >Selected image: {{ uploadingImage.name }}</span
+            >
+            <span v-else style="cursor: pointer">Chọn File</span>
+          </div>
+          <!-- Now, the file input that we hide. -->
+          <input
+            id="createNewsimageupload"
+            ref="createNewsimageupload"
+            accept="image/png,image/jpeg,image/jpg"
+            style="display: none"
+            type="file"
+            v-on:change="handleFileChangeOnCreateNews"
+          />
+        </label>
+        <el-form-item v-if="this.addNews.typeName === 4" label="Nội dung" :label-width="formLabelWidth">
+          <mumbi-editor v-model="addNews.NewsContent"></mumbi-editor>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -106,7 +186,6 @@
       :data="searchResult ? searchResult : tableData"
       style="width: 100%"
     >
-      <el-table-column label="STT" type="index" width="60"> </el-table-column>
       <el-table-column label="Tên hoạt động" width="200">
         <template slot-scope="scope">
           <span>{{ scope.row.activityName }}</span>
@@ -117,17 +196,47 @@
           <span>{{ scope.row.type }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Độ tuổi (tuần tuổi)" :min-width="60">
+      <el-table-column label="Trạng thái" :min-width="40">
         <template slot-scope="scope">
-          <span>{{ scope.row.suitableAge }}</span>
+          <span>{{
+            scope.row.usedFor === true
+              ? "Em bé"
+              : scope.row.usedFor === false
+              ? "Thai nhi"
+              : "Chưa rõ"
+          }}</span>
+          <!-- <span>{{ scope.row.gender }}</span> -->
         </template>
       </el-table-column>
-      <el-table-column label="File" :min-width="200">
+      <el-table-column label="Độ tuổi" :min-width="40">
         <template slot-scope="scope">
-          <audio controls>
+          <span
+            v-if="
+              scope.row.minSuitableAge != scope.row.maxSuitableAge &&
+              scope.row.minSuitableAge != null
+            "
+            >{{ scope.row.minSuitableAge }} đến
+            {{ scope.row.maxSuitableAge }}</span
+          >
+          <span v-if="scope.row.minSuitableAge === scope.row.maxSuitableAge"
+            >{{ scope.row.maxSuitableAge }}
+          </span>
+          <span v-if="scope.row.minSuitableAge === null"
+            >{{ scope.row.maxSuitableAge }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="File" :min-width="100">
+        <template slot-scope="scope">
+          <audio v-if="scope.row.type === 'Đọc thơ' || scope.row.type === 'Kể chuyện' || scope.row.type === 'Nghe nhạc'" controls>
             <source :src="scope.row.mediaFileURL" type="audio/ogg" />
             <source :src="scope.row.mediaFileURL" type="audio/mpeg" />
           </audio>
+          <img
+            v-if="scope.row.type === 'Đọc'"
+            :src="scope.row.mediaFileURL"
+            style="height: 250px; width: 300px"
+          />
         </template>
       </el-table-column>
       <el-table-column align="right">
@@ -158,14 +267,32 @@
                 <el-input v-model="form.title" autocomplete="off"></el-input>
               </el-form-item>
               <el-form-item
-                label="Độ tuổi (tuần tuổi)"
+                label="Trạng thái"
                 :label-width="formLabelWidth"
-                prop="suitableAge1"
+                prop="status"
               >
-                <el-input
-                  v-model.number="form.suitableAge1"
-                  autocomplete="off"
-                ></el-input>
+                <el-radio-group
+                  v-model="form.status"
+                  style="float: left; margin-top: 15px"
+                >
+                  <el-radio label="Thai nhi"></el-radio>
+                  <el-radio label="Em bé"></el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="Độ tuổi từ" :label-width="formLabelWidth">
+                <el-col :span="11">
+                  <el-form-item prop="minAge">
+                    <el-input v-model.number="form.minAge"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col class="line" :span="2" style="text-align: center">
+                  Đến
+                </el-col>
+                <el-col :span="11">
+                  <el-form-item prop="maxAge">
+                    <el-input v-model.number="form.maxAge"></el-input>
+                  </el-form-item>
+                </el-col>
               </el-form-item>
               <el-form-item
                 label="Loại hoạt động"
@@ -184,7 +311,7 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="File âm thanh" :label-width="formLabelWidth">
+              <el-form-item label="File âm thanh"  v-if="form.typeName === 1 || form.typeName === 2 || form.typeName === 3" :label-width="formLabelWidth">
                 <el-row type="flex" class="row-bg" justify="left">
                   <el-form-item v-if="form.uploadFile != ''">
                     <audio controls>
@@ -195,11 +322,27 @@
                 </el-row>
                 <label class="file-select" justify="left" style="float: left">
                   <!-- We can't use a normal button element here, as it would become the target of the label. -->
-                  <span v-if="form.newName"><strong>File mới được upload:</strong> {{ form.newName }}</span>
-                    <span v-else><strong>Tên file cũ:</strong> {{ form.formName }}</span>
+                  <span v-if="form.newName"
+                    ><strong>File mới được upload:</strong>
+                    {{ form.newName }}</span
+                  >
+                  <span v-else
+                    ><strong>Tên file cũ:</strong> {{ form.formName }}</span
+                  >
                   <div class="select-button">
-                    <div style="cursor: pointer; text-align: center; border: 2px solid #67c23a;
-  border-radius: 5px; background-color: #67c23a; color: white; width: 120px"> Chọn File khác</div>
+                    <div
+                      style="
+                        cursor: pointer;
+                        text-align: center;
+                        border: 2px solid #67c23a;
+                        border-radius: 5px;
+                        background-color: #67c23a;
+                        color: white;
+                        width: 120px;
+                      "
+                    >
+                      Chọn File khác
+                    </div>
                   </div>
                   <!-- Now, the file input that we hide. -->
                   <input
@@ -211,6 +354,51 @@
                     v-on:change="handleFileChange"
                   />
                 </label>
+              </el-form-item>
+              <el-row v-if="form.typeName === 4" type="flex" class="row-bg" justify="center">
+                <el-form-item style="width: 50%">
+                  <el-image style="width: 100%" v-if="form.imageUrl === ''">
+                    <div slot="error" class="image-slot text-center">
+                      <i
+                        style="font-size: 3rem"
+                        class="el-icon-picture-outline"
+                      ></i>
+                    </div>
+                  </el-image>
+
+                  <img :src="form.imageUrl" />
+                </el-form-item>
+              </el-row>
+              <label v-if="form.typeName === 4" class="file-select" style="margin-left: 80%">
+                <!-- We can't use a normal button element here, as it would become the target of the label. -->
+                <div class="select-button">
+                  <!-- Display the filename if a file has been selected. -->
+                  <span
+                    v-if="uploadingImage"
+                    style="
+                      padding: 1rem;
+                      color: white;
+                      background-color: #2ea169;
+                      border-radius: 0.3rem;
+                      text-align: center;
+                      font-weight: bold;
+                    "
+                    >Selected image: {{ uploadingImage.name }}</span
+                  >
+                  <span v-else style="cursor: pointer">Chọn File</span>
+                </div>
+                <!-- Now, the file input that we hide. -->
+                <input
+                  id="Newsimageupload"
+                  ref="Newsimageupload"
+                  accept="image/png,image/jpeg,image/jpg"
+                  style="display: none"
+                  type="file"
+                  v-on:change="handleFileChange1"
+                />
+              </label>
+              <el-form-item v-if="form.typeName === 4" label="Nội dung" :label-width="formLabelWidth">
+                <mumbi-editor v-model="form.NewsContent"></mumbi-editor>
               </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -356,11 +544,13 @@ export default {
         NewsContent: "",
         imageUrl: "",
         title: "",
-        suitableAge1: "",
+        minAge: "",
+        maxAge: "",
+        status: "",
         formName: "",
         uploadFile: "",
         newName: "",
-        image1: ""
+        image1: "",
       },
       addNews: {
         NewsContent: "",
@@ -370,6 +560,9 @@ export default {
         newsTitle: "",
         typeName: "",
         suitableAge: "",
+        minAge: "",
+        maxAge: "",
+        status: "",
       },
       totalCount: 0,
       uploadingImage: "",
@@ -391,6 +584,10 @@ export default {
           id: 3,
           type: "Kể chuyện",
         },
+        {
+          id: 4,
+          type: "Đọc",
+        },
       ],
       pagination: [],
       totalPages: 0,
@@ -405,7 +602,7 @@ export default {
   },
   created: function () {
     axios
-      .get(`https://service.mumbi.xyz/api/Activity/GetActivity`)
+      .get(`https://mumbi.xyz/api/Activity/GetActivity`)
       .then((rs) => {
         this.tableData = rs.data.data;
         this.totalCount = rs.data.total;
@@ -445,12 +642,33 @@ export default {
       this.form.typeName = row.typeId;
       this.form.image1 = row.mediaFileURL;
       this.form.formName = row.activityName;
+      this.form.minAge = row.minSuitableAge;
+      this.form.maxAge = row.maxSuitableAge;
+      if (row.usedFor === false) {
+        this.form.status = "Thai nhi";
+      } else if (row.usedFor === true) {
+        this.form.status = "Em bé";
+      }
+      this.form.imageUrl = row.mediaFileURL;
+      this.form.NewsContent = row.activityContent;
     },
     async confirm(index, row, formName) {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
           this.dialogFormVisible = false;
           let NewsId = this.tableData[this.editedIndex].id;
+          let usedForWho1 = false;
+          if (this.form.status === "Em bé") {
+            usedForWho1 = true;
+          }
+          let minAge = this.form.minAge;
+          let maxAge = this.form.maxAge;
+          if (minAge === null) {
+            minAge = maxAge;
+          }
+          if (maxAge === null) {
+            maxAge = minAge;
+          }
           try {
             if (this.form.imageFile) {
               var ref = firebase
@@ -461,18 +679,20 @@ export default {
               await ref.put(this.form.imageFile);
               let imageUrl1 = await ref.getDownloadURL();
               await axios.put(
-                `https://service.mumbi.xyz/api/Activity/UpdateActivity/` +
-                  NewsId,
+                `https://mumbi.xyz/api/Activity/UpdateActivity/` + NewsId,
                 {
                   id: NewsId,
                   activityName: this.form.title,
-                  suitableAge: this.form.suitableAge1,
+                  minSuitableAge: minAge,
+                  maxSuitableAge: maxAge,
+                  usedFor: usedForWho1,
                   typeId: this.form.typeName,
                   mediaFileURL: imageUrl1,
+                  activityContent: this.form.NewsContent
                 }
               );
               await axios
-                .get(`https://service.mumbi.xyz/api/Activity/GetActivity`)
+                .get(`https://mumbi.xyz/api/Activity/GetActivity`)
                 .then((rs) => {
                   this.tableData = rs.data.data;
                   this.totalCount = rs.data.total;
@@ -483,18 +703,20 @@ export default {
                 });
             } else {
               await axios.put(
-                `https://service.mumbi.xyz/api/Activity/UpdateActivity/` +
-                  NewsId,
+                `https://mumbi.xyz/api/Activity/UpdateActivity/` + NewsId,
                 {
                   id: NewsId,
                   activityName: this.form.title,
-                  suitableAge: this.form.suitableAge1,
+                  minSuitableAge: minAge,
+                  maxSuitableAge: maxAge,
+                  usedFor: usedForWho1,
                   typeId: this.form.typeName,
                   mediaFileURL: this.form.image1,
+                  activityContent: this.form.NewsContent
                 }
               );
               await axios
-                .get(`https://service.mumbi.xyz/api/Activity/GetActivity`)
+                .get(`https://mumbi.xyz/api/Activity/GetActivity`)
                 .then((rs) => {
                   this.tableData = rs.data.data;
                   this.totalCount = rs.data.total;
@@ -537,7 +759,19 @@ export default {
           this.dialogFormAddVisible = false;
           let type = this.addNews.typeName;
           let titleNews = this.addNews.newsTitle;
-          let age = this.addNews.suitableAge;
+          let minAge = this.addNews.minAge;
+          let maxAge = this.addNews.maxAge;
+          if (minAge === "") {
+            minAge = maxAge;
+          }
+          if (maxAge === "") {
+            maxAge = minAge;
+          }
+          let status = this.addNews.status;
+          let usedForWho = false;
+          if (status === "Em bé") {
+            usedForWho = true;
+          }
           try {
             var ref = firebase
               .storage()
@@ -547,21 +781,21 @@ export default {
             await ref.put(this.addNews.imageFile);
             let imageUrl = await ref.getDownloadURL();
 
-            await axios.post(
-              `https://service.mumbi.xyz/api/Activity/AddActivity`,
-              {
-                activityName: titleNews,
-                suitableAge: age,
-                typeId: type,
-                mediaFileURL: imageUrl,
-              }
-            );
+            await axios.post(`https://mumbi.xyz/api/Activity/AddActivity`, {
+              activityName: titleNews,
+              typeId: type,
+              mediaFileURL: imageUrl,
+              minSuitableAge: minAge,
+              maxSuitableAge: maxAge,
+              usedFor: usedForWho,
+              activityContent: this.addNews.NewsContent
+            });
             this.$message({
               type: "success",
               message: `Tạo hoạt động thành công !`,
             });
             await axios
-              .get(`https://service.mumbi.xyz/api/Activity/GetActivity`)
+              .get(`https://mumbi.xyz/api/Activity/GetActivity`)
               .then((rs) => {
                 this.tableData = rs.data.data;
                 this.totalCount = rs.data.total;
@@ -579,13 +813,19 @@ export default {
         }
       });
     },
+    async handleFileChange1() {
+      let file = this.$refs.Newsimageupload.files[0];
+      let resultData = await this.readAsync(file);
+      this.form.imageUrl = resultData;
+      this.form.imageFile = file;
+    },
     async handleFileChange() {
       let file = this.$refs.Newsimageupload.files[0];
       let resultData = await this.readAsync(file);
       this.form.imageUrl = resultData;
       this.form.imageFile = file;
-      let fileName = this.form.imageFile.name.trim()
-      this.form.formName = fileName
+      let fileName = this.form.imageFile.name.trim();
+      this.form.formName = fileName;
       // var ref = firebase
       //   .storage()
       //   .refFromURL("gs://mumbi-app-84d15.appspot.com")
@@ -593,10 +833,10 @@ export default {
 
       // await ref.put(this.form.imageFile);
       // // this.form.imageUrl = await ref.getDownloadURL()
-      this.form.uploadFile = this.form.imageUrl
-      this.form.imageUrl = ''
-      this.form.newName = fileName
-      this.form.formName = ''
+      this.form.uploadFile = this.form.imageUrl;
+      this.form.imageUrl = "";
+      this.form.newName = fileName;
+      this.form.formName = "";
     },
     async handleFileChangeOnCreateNews() {
       let file = this.$refs.createNewsimageupload.files[0];
@@ -652,7 +892,7 @@ export default {
             this.NewsIdDelete = row.id;
             axios
               .put(
-                `https://service.mumbi.xyz/api/Activity/DeleteActivity/` +
+                `https://mumbi.xyz/api/Activity/DeleteActivity/` +
                   this.NewsIdDelete
               )
               .then((response) => {});
@@ -681,9 +921,7 @@ export default {
       }
       try {
         let result = await axios
-          .get(
-            `https://service.mumbi.xyz/api/Activity/GetActivity?SearchValue=${e}`
-          )
+          .get(`https://mumbi.xyz/api/Activity/GetActivity?SearchValue=${e}`)
           .then((rs) => {
             this.totalCount = rs.data.total;
             this.searchResult = rs.data.data;
@@ -697,9 +935,7 @@ export default {
     },
     async handleCurrentChange(val) {
       axios
-        .get(
-          `https://service.mumbi.xyz/api/Activity/GetActivity?PageNumber=${val}`
-        )
+        .get(`https://mumbi.xyz/api/Activity/GetActivity?PageNumber=${val}`)
         .then((rs) => {
           this.tableData = rs.data.data;
           this.searchResult = rs.data.data;
@@ -713,15 +949,17 @@ export default {
       this.dialogFormAddVisible = true;
       this.addNews.typeName = "";
       this.addNews.newsTitle = "";
-      this.addNews.suitableAge = "";
+      this.addNews.minAge = "";
+      this.addNews.maxAge = "";
+      this.addNews.status = "";
       this.addNews.imageUrl = "";
     },
     cancel(formName) {
       this.$refs[formName].resetFields();
       this.dialogFormAddVisible = false;
       this.dialogFormVisible = false;
-      this.form.imageUrl = ''
-      this.form.uploadFile = ''
+      this.form.imageUrl = "";
+      this.form.uploadFile = "";
     },
   },
 };
@@ -739,5 +977,8 @@ p {
 span {
   word-wrap: normal;
   word-break: normal;
+}
+.el-radio-group {
+  margin-top: 11px;
 }
 </style>

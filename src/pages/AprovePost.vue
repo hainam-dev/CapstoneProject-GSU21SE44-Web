@@ -5,8 +5,7 @@
       :data="searchResult ? searchResult : tableData"
       style="width: 100%"
     >
-      <el-table-column label="STT" type="index" width="60">
-              </el-table-column>
+      <el-table-column label="STT" type="index" width="60"> </el-table-column>
       <!-- <el-table-column label="Id" width="50">
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
@@ -17,59 +16,60 @@
           <el-button size="mini" @click="handleImage(scope.$index, scope.row)"
             >Hiển thị</el-button
           >
-          <el-dialog
-            title="Hình ảnh"
-            :visible.sync="imageDialogVisible"
-          >
-            <img v-if='imageDiary !== ""' style="width: 400px; height: 400px" :src="imageDiary" />
+          <el-dialog title="Hình ảnh" :visible.sync="imageDialogVisible">
+            <img
+              v-if="imageDiary !== ''"
+              style="width: 400px; height: 400px"
+              :src="imageDiary"
+            />
             <carousel v-if="listImage.length === 5">
               <slide>
-                <img  style="width: 100%; height: 100%" :src="listImage[0]">
+                <img style="width: 100%; height: 100%" :src="listImage[0]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[1]">
+                <img style="width: 100%; height: 100%" :src="listImage[1]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[2]">
+                <img style="width: 100%; height: 100%" :src="listImage[2]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[3]">
+                <img style="width: 100%; height: 100%" :src="listImage[3]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[4]">
+                <img style="width: 100%; height: 100%" :src="listImage[4]" />
               </slide>
             </carousel>
             <carousel v-if="listImage.length === 4">
               <slide>
-                <img  style="width: 100%; height: 100%" :src="listImage[0]">
+                <img style="width: 100%; height: 100%" :src="listImage[0]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[1]">
+                <img style="width: 100%; height: 100%" :src="listImage[1]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[2]">
+                <img style="width: 100%; height: 100%" :src="listImage[2]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[3]">
+                <img style="width: 100%; height: 100%" :src="listImage[3]" />
               </slide>
             </carousel>
             <carousel v-if="listImage.length === 3">
               <slide>
-                <img  style="width: 100%; height: 100%" :src="listImage[0]">
+                <img style="width: 100%; height: 100%" :src="listImage[0]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[1]">
+                <img style="width: 100%; height: 100%" :src="listImage[1]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[2]">
+                <img style="width: 100%; height: 100%" :src="listImage[2]" />
               </slide>
             </carousel>
             <carousel v-if="listImage.length === 2">
               <slide>
-                <img style="width: 100%; height: 100%" :src="listImage[0]">
+                <img style="width: 100%; height: 100%" :src="listImage[0]" />
               </slide>
               <slide style="margin-left: 3px">
-                <img style="width: 100%; height: 100%" :src="listImage[1]">
+                <img style="width: 100%; height: 100%" :src="listImage[1]" />
               </slide>
             </carousel>
           </el-dialog>
@@ -117,14 +117,46 @@
             :disabled="disabledFlag"
             >Duyệt</el-button
           >
-          <el-button
+          <el-button size="mini" @click="handleDeny(scope.$index, scope.row)" type="danger" :disabled="disabledFlag"
+            >Không duyệt</el-button
+          >
+          <el-dialog
+            :visible.sync="dialogFormVisible1"
+            :lock-scroll="true"
+            width="60%"
+            append-to-body
+          >
+            <el-form
+              :model="form1"
+              class="demo-ruleForm"
+            >
+              <el-form-item
+                label="Lý do"
+                :label-width="formLabelWidth"
+              >
+                <el-input
+                  v-model="form1.reason"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogFormVisible1 = false">Hủy bỏ</el-button>
+              <el-button
+                type="primary"
+                @click="confirm1(scope.$index, scope.row, 'form1')"
+                >Xác nhận</el-button
+              >
+            </span>
+          </el-dialog>
+          <!-- <el-button
             size="mini"
             type="danger"
             @click="handleDeny(scope.$index, scope.row)"
             :disabled="disabledFlag"
             style="margin-left: 10px"
             >Không duyệt</el-button
-          >
+          > -->
         </template>
       </el-table-column>
     </el-table>
@@ -177,7 +209,11 @@ export default {
       disabledFlag: false,
       imageList: "",
       imageDiary: "",
-      listImage: []
+      listImage: [],
+      form1: {
+        reason: "",
+      },
+      dialogFormVisible1: false
     };
   },
   components: {
@@ -186,7 +222,7 @@ export default {
   },
   created: function () {
     axios
-      .get(`https://service.mumbi.xyz/api/Diaries/GetDiaryToApprove`)
+      .get(`https://mumbi.xyz/api/Diaries/GetDiaryToApprove`)
       .then((rs) => {
         this.tableData = rs.data.data;
       })
@@ -202,9 +238,9 @@ export default {
       let imageList = this.tableData[this.editedIndex].imageURL;
       if (imageList.indexOf(";") == -1) {
         this.imageDiary = imageList;
-      } else if(imageList.indexOf(";") != -1){
-        this.imageDiary = ""
-        this.listImage = imageList.split(';');
+      } else if (imageList.indexOf(";") != -1) {
+        this.imageDiary = "";
+        this.listImage = imageList.split(";");
       }
       // if(imageList.)
       // if(row.imageURL.con)
@@ -218,7 +254,7 @@ export default {
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
       await axios
         .put(
-          `https://service.mumbi.xyz/api/Diaries/UpdateDiaryPublic/${diaryId}?childID=${childIdApprove}`,
+          `https://mumbi.xyz/api/Diaries/UpdateDiaryPublic/${diaryId}?childID=${childIdApprove}`,
           {
             id: diaryId,
             approvedFlag: true,
@@ -236,7 +272,7 @@ export default {
           });
         });
       await axios
-        .get(`https://service.mumbi.xyz/api/Diaries/GetDiaryToApprove`)
+        .get(`https://mumbi.xyz/api/Diaries/GetDiaryToApprove`)
         .then((rs) => {
           this.tableData = rs.data.data;
         })
@@ -287,21 +323,24 @@ export default {
     removeImage: function (e) {
       this.addNews.image = "";
     },
-    async handleDeny(index, row) {
+    handleDeny(index, row) {
+      this.dialogFormVisible1 = true;
+    },
+    async confirm1(index, row, formName) {
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
       this.editedIndex = this.tableData.indexOf(row);
       let diaryId = this.tableData[this.editedIndex].id;
       let childIdApprove = this.tableData[this.editedIndex].childId;
-      let content = this.tableData[this.editedIndex].diaryContent;
       await axios
         .put(
-          `https://service.mumbi.xyz/api/Diaries/UpdateDiaryPublic/${diaryId}?childID=${childIdApprove}`,
+          `https://mumbi.xyz/api/Diaries/UpdateDiaryPublic/${diaryId}?childID=${childIdApprove}`,
           {
             id: diaryId,
             approvedFlag: false,
             publicFlag: false,
             childId: childIdApprove,
-            publicDate: new Date(),
+            notificationMessage: this.form1.reason,
+            reviewedBy: userInfo.fullname
             // lastModifiedBy: userInfo.id
           }
         )
@@ -312,7 +351,7 @@ export default {
           });
         });
       await axios
-        .get(`https://service.mumbi.xyz/api/Diaries/GetDiaryToApprove`)
+        .get(`https://mumbi.xyz/api/Diaries/GetDiaryToApprove`)
         .then((rs) => {
           this.tableData = rs.data.data;
         })

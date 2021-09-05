@@ -110,7 +110,7 @@
               </li>
               <div class="dropdown-divider"></div>
               <li class="nav-link">
-                <a v-on:click="logout" class="nav-item dropdown-item"
+                <a v-on:click="logout" href="/login" class="nav-item dropdown-item"
                   >Log out</a
                 >
               </li>
@@ -168,7 +168,7 @@ export default {
           "BNN2j64Wo_Ma8G7ElOgRnFH-k9raFwK4jbdOyTJ6BkRPHrI6FXdALMMlKz93x1rSbptR7_ogIHI0yeKLRwnUxVU",
       });
       await axios.delete(
-        `https://service.mumbi.xyz/api/Token/DeleteToken/${userInfo.id}/${token2}`
+        `https://mumbi.xyz/api/Token/DeleteToken/${userInfo.id}/${token2}`
       );
       this.$router.push({
         name: "login",

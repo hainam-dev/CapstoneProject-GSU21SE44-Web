@@ -96,7 +96,7 @@
       title="Thêm cẩm nang"
       :visible.sync="dialogFormAddVisible"
       :lock-scroll="true"
-      width="80%"
+      width="70%"
     >
       <el-form
         :model="addNews"
@@ -165,18 +165,39 @@
           <mumbi-editor v-model="addNews.NewsContent"></mumbi-editor>
         </el-form-item>
         <el-form-item
-          label="Thời gian đọc (phút)"
+          label="Trạng thái"
           :label-width="formLabelWidth"
-          prop="estimateTime"
+          prop="status"
         >
-          <el-input v-model.number="addNews.estimateTime"></el-input>
+          <el-radio-group v-model="addNews.status">
+            <el-radio label="Thai nhi"></el-radio>
+            <el-radio label="Em bé"></el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item
-          label="Độ tuổi (tuần tuổi)"
-          :label-width="formLabelWidth"
-          prop="suitableAge"
-        >
-          <el-input v-model.number="addNews.suitableAge"></el-input>
+        <el-form-item label="Độ tuổi từ" :label-width="formLabelWidth">
+          <el-col :span="5">
+            <el-form-item prop="minAge">
+              <el-input v-model.number="addNews.minAge"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col class="line" :span="2" style="text-align: center">
+            Đến
+          </el-col>
+          <el-col :span="5">
+            <el-form-item prop="maxAge">
+              <el-input v-model.number="addNews.maxAge"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item
+              label="Thời gian đọc (phút)"
+              :label-width="formLabelWidth"
+              prop="estimateTime"
+              style="margin-left: 6px"
+            >
+              <el-input v-model.number="addNews.estimateTime"></el-input>
+            </el-form-item>
+          </el-col>
         </el-form-item>
         <el-form-item
           label="Loại cẩm nang"
@@ -209,7 +230,7 @@
       :data="searchResult ? searchResult : tableData"
       style="width: 100%"
     >
-      <el-table-column label="STT" type="index" width="50"> </el-table-column>
+    <el-table-column label="STT" type="index" width="50"> </el-table-column>
       <el-table-column label="Hình ảnh" prop="image" width="190">
         <template slot-scope="scope">
           <img
@@ -219,7 +240,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="Tiêu đề" width="200">
+      <el-table-column label="Tiêu đề" width="180">
         <template slot-scope="scope">
           <span>{{ scope.row.title }}</span>
         </template>
@@ -237,14 +258,39 @@
           <span>{{ scope.row.type }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Thời gian đọc (phút)" :min-width="50">
+      <!-- <el-table-column label="Thời gian đọc (phút)" :min-width="50">
         <template slot-scope="scope">
           <span>{{ scope.row.estimatedFinishTime }}</span>
         </template>
-      </el-table-column>
-      <el-table-column label="Độ tuổi (tuần tuổi)" :min-width="40">
+      </el-table-column> -->
+      <el-table-column label="Trạng thái" :min-width="40">
         <template slot-scope="scope">
-          <span>{{ scope.row.suitableAge }}</span>
+          <span>{{
+            scope.row.usedFor === true
+              ? "Em bé"
+              : scope.row.usedFor === false
+              ? "Thai nhi"
+              : "Chưa rõ"
+          }}</span>
+          <!-- <span>{{ scope.row.gender }}</span> -->
+        </template>
+      </el-table-column>
+      <el-table-column label="Độ tuổi" :min-width="40">
+        <template slot-scope="scope">
+          <span
+            v-if="
+              scope.row.minSuitableAge != scope.row.maxSuitableAge &&
+              scope.row.minSuitableAge != null
+            "
+            >{{ scope.row.minSuitableAge }} đến
+            {{ scope.row.maxSuitableAge }}</span
+          >
+          <span v-if="scope.row.minSuitableAge === scope.row.maxSuitableAge"
+            >{{ scope.row.maxSuitableAge }}
+          </span>
+          <span v-if="scope.row.minSuitableAge === null"
+            >{{ scope.row.maxSuitableAge }}
+          </span>
         </template>
       </el-table-column>
       <el-table-column align="right">
@@ -324,34 +370,42 @@
                 <el-input v-model="form.title" autocomplete="off"></el-input>
               </el-form-item>
               <el-form-item label="Nội dung" :label-width="formLabelWidth">
-                <!-- <el-input
-                  type="textarea"
-                  :autosize="{ minRows: 2, maxRows: 4 }"
-                  v-model="form.NewsContent"
-                >
-                </el-input> -->
-                <!-- <ckeditor v-model="form.NewsContent" :config="editorConfig"></ckeditor> -->
                 <mumbi-editor v-model="form.NewsContent"></mumbi-editor>
               </el-form-item>
               <el-form-item
-                label="Thời gian đọc (phút)"
+                label="Trạng thái"
                 :label-width="formLabelWidth"
-                prop="estimateTime1"
+                prop="status"
               >
-                <el-input
-                  v-model.number="form.estimateTime1"
-                  autocomplete="off"
-                ></el-input>
+                <el-radio-group v-model="form.status">
+                  <el-radio label="Thai nhi"></el-radio>
+                  <el-radio label="Em bé"></el-radio>
+                </el-radio-group>
               </el-form-item>
-              <el-form-item
-                label="Độ tuổi (tuần tuổi)"
-                :label-width="formLabelWidth"
-                prop="suitableAge1"
-              >
-                <el-input
-                  v-model.number="form.suitableAge1"
-                  autocomplete="off"
-                ></el-input>
+              <el-form-item label="Độ tuổi từ" :label-width="formLabelWidth">
+                <el-col :span="5">
+                  <el-form-item prop="minAge">
+                    <el-input v-model.number="form.minAge"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col class="line" :span="2" style="text-align: center">
+                  Đến
+                </el-col>
+                <el-col :span="5">
+                  <el-form-item prop="maxAge">
+                    <el-input v-model.number="form.maxAge"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item
+                    label="Thời gian đọc (phút)"
+                    :label-width="formLabelWidth"
+                    prop="estimateTime"
+                    style="margin-left: 6px"
+                  >
+                    <el-input v-model.number="form.estimateTime1"></el-input>
+                  </el-form-item>
+                </el-col>
               </el-form-item>
               <el-form-item label="Loại cẩm nang" :label-width="formLabelWidth">
                 <el-select
@@ -488,7 +542,6 @@ export default {
         newsTitle: [{ validator: checkTitle, trigger: "blur" }],
         imageUrl: [{ validator: checkImg, trigger: "blur" }],
         typeName: [{ validator: checkType, trigger: "blur" }],
-        suitableAge: [{ validator: checkAge, trigger: "blur" }],
       },
       rulesForm: {
         estimateTime1: [{ validator: checkTime, trigger: "blur" }],
@@ -509,7 +562,9 @@ export default {
         imageUrl: "",
         title: "",
         estimateTime1: "",
-        suitableAge1: "",
+        minAge: "",
+        maxAge: "",
+        status: "",
       },
       addNews: {
         NewsContent: "",
@@ -519,7 +574,9 @@ export default {
         newsTitle: "",
         estimateTime: "",
         typeName: "",
-        suitableAge: "",
+        minAge: "",
+        maxAge: "",
+        status: "",
       },
       uploadingImage: "",
       formLabelWidth: "130px",
@@ -548,7 +605,7 @@ export default {
   },
   created: function () {
     axios
-      .get(`https://service.mumbi.xyz/api/Guidebooks/GetGuidebook`)
+      .get(`https://mumbi.xyz/api/Guidebooks/GetGuidebook`)
       .then((rs) => {
         this.tableData = rs.data.data;
         this.totalCount = rs.data.total;
@@ -558,7 +615,7 @@ export default {
         console.log(e);
       });
     axios
-      .get(`https://service.mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`)
+      .get(`https://mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`)
       .then((res) => {
         this.listtype = res.data.data;
         this.tableData1 = res.data.data;
@@ -577,13 +634,19 @@ export default {
     handleEdit(index, row) {
       this.dialogFormVisible = true;
       this.editedIndex = this.tableData.indexOf(row);
-      console.log(this.editedIndex)
+      console.log(this.editedIndex);
       this.form.title = row.title;
       this.form.NewsContent = row.guidebookContent;
       this.form.typeName = row.typeId;
       this.form.imageUrl = row.imageURL;
       this.form.estimateTime1 = row.estimatedFinishTime;
-      this.form.suitableAge1 = row.suitableAge;
+      this.form.minAge = row.minSuitableAge;
+      this.form.maxAge = row.maxSuitableAge;
+      if (row.usedFor === false) {
+        this.form.status = "Thai nhi";
+      } else if (row.usedFor === true) {
+        this.form.status = "Em bé";
+      }
     },
     async confirm(index, row, formName) {
       this.$refs[formName].validate(async (valid) => {
@@ -591,7 +654,19 @@ export default {
           let userInfo = JSON.parse(localStorage.getItem("userInfo"));
           this.dialogFormVisible = false;
           let NewsId = this.tableData[this.editedIndex].id;
-          console.log(NewsId)
+          let usedForWho1 = false;
+          if (this.form.status === "Em bé") {
+            usedForWho1 = true;
+          }
+          let minAge = this.form.minAge;
+          let maxAge = this.form.maxAge;
+          if (minAge === null) {
+            minAge = maxAge;
+          }
+          if (maxAge === null) {
+            maxAge = minAge;
+          }
+          console.log(NewsId);
           try {
             if (this.form.imageFile) {
               var ref = firebase
@@ -602,8 +677,7 @@ export default {
               await ref.put(this.form.imageFile);
               let imageUrl1 = await ref.getDownloadURL();
               await axios.put(
-                `https://service.mumbi.xyz/api/Guidebooks/UpdateGuidebook/` +
-                  NewsId,
+                `https://mumbi.xyz/api/Guidebooks/UpdateGuidebook/` + NewsId,
                 {
                   id: NewsId,
                   title: this.form.title,
@@ -611,12 +685,14 @@ export default {
                   imageURL: imageUrl1,
                   typeId: this.form.typeName,
                   estimatedFinishTime: this.form.estimateTime1,
-                  lastModifiedBy: userInfo.id,
-                  suitableAge: this.form.suitableAge1,
+                  lastModifiedBy: userInfo.fullname,
+                  minSuitableAge: minAge,
+                  maxSuitableAge: maxAge,
+                  usedFor: usedForWho1,
                 }
               );
               await axios
-                .get(`https://service.mumbi.xyz/api/Guidebooks/GetGuidebook`)
+                .get(`https://mumbi.xyz/api/Guidebooks/GetGuidebook`)
                 .then((rs) => {
                   this.tableData = rs.data.data;
                   this.totalCount = rs.data.total;
@@ -627,8 +703,7 @@ export default {
                 });
             } else {
               await axios.put(
-                `https://service.mumbi.xyz/api/Guidebooks/UpdateGuidebook/` +
-                  NewsId,
+                `https://mumbi.xyz/api/Guidebooks/UpdateGuidebook/` + NewsId,
                 {
                   imageURL: this.form.imageUrl,
                   id: NewsId,
@@ -636,12 +711,14 @@ export default {
                   guidebookContent: this.form.NewsContent,
                   typeId: this.form.typeName,
                   estimatedFinishTime: this.form.estimateTime1,
-                  lastModifiedBy: userInfo.id,
-                  suitableAge: this.form.suitableAge1,
+                  lastModifiedBy: userInfo.fullname,
+                  minSuitableAge: minAge,
+                  maxSuitableAge: maxAge,
+                  usedFor: usedForWho1,
                 }
               );
               await axios
-                .get(`https://service.mumbi.xyz/api/Guidebooks/GetGuidebook`)
+                .get(`https://mumbi.xyz/api/Guidebooks/GetGuidebook`)
                 .then((rs) => {
                   this.tableData = rs.data.data;
                   this.totalCount = rs.data.total;
@@ -686,7 +763,19 @@ export default {
           let NewsContent = this.addNews.NewsContent;
           let titleNews = this.addNews.newsTitle;
           let time = this.addNews.estimateTime;
-          let age = this.addNews.suitableAge;
+          let minAge = this.addNews.minAge;
+          let maxAge = this.addNews.maxAge;
+          if (minAge === "") {
+            minAge = maxAge;
+          }
+          if (maxAge === "") {
+            maxAge = minAge;
+          }
+          let status = this.addNews.status;
+          let usedForWho = false;
+          if (status === "Em bé") {
+            usedForWho = true;
+          }
           try {
             if (this.addNews.imageFile) {
               var ref = firebase
@@ -698,27 +787,33 @@ export default {
               let imageUrl = await ref.getDownloadURL();
 
               await axios.post(
-                `https://service.mumbi.xyz/api/Guidebooks/AddGuidebook`,
+                `https://mumbi.xyz/api/Guidebooks/AddGuidebook`,
                 {
                   title: titleNews,
                   guidebookContent: NewsContent,
                   imageURL: imageUrl,
                   typeId: type,
                   estimatedFinishTime: time,
-                  createdBy: userInfo.id,
-                  suitableAge: age,
+                  createdBy: userInfo.fullname,
+                  minSuitableAge: minAge,
+                  maxSuitableAge: maxAge,
+                  usedFor: usedForWho,
+                  createdTime: new Date(),
                 }
               );
             } else {
               await axios.post(
-                `https://service.mumbi.xyz/api/Guidebooks/AddGuidebook`,
+                `https://mumbi.xyz/api/Guidebooks/AddGuidebook`,
                 {
                   title: titleNews,
                   guidebookContent: NewsContent,
                   typeId: type,
                   estimatedFinishTime: time,
-                  createdBy: userInfo.id,
-                  suitableAge: age,
+                  createdBy: userInfo.fullname,
+                  minSuitableAge: minAge,
+                  maxSuitableAge: maxAge,
+                  usedFor: usedForWho,
+                  createdTime: new Date(),
                 }
               );
             }
@@ -727,7 +822,7 @@ export default {
               message: `Tạo cẩm nang thành công !`,
             });
             await axios
-              .get(`https://service.mumbi.xyz/api/Guidebooks/GetGuidebook`)
+              .get(`https://mumbi.xyz/api/Guidebooks/GetGuidebook`)
               .then((rs) => {
                 this.tableData = rs.data.data;
                 this.totalCount = rs.data.total;
@@ -798,7 +893,7 @@ export default {
             this.NewsIdDelete = row.id;
             axios
               .put(
-                `https://service.mumbi.xyz/api/Guidebooks/DeleteGuidebook/` +
+                `https://mumbi.xyz/api/Guidebooks/DeleteGuidebook/` +
                   this.NewsIdDelete
               )
               .then((response) => {});
@@ -833,9 +928,7 @@ export default {
       }
       try {
         let result = await axios
-          .get(
-            `https://service.mumbi.xyz/api/Guidebooks/GetGuidebook?SearchValue=${e}`
-          )
+          .get(`https://mumbi.xyz/api/Guidebooks/GetGuidebook?SearchValue=${e}`)
           .then((rs) => {
             this.totalCount = rs.data.total;
             this.searchResult = rs.data.data;
@@ -849,9 +942,7 @@ export default {
     },
     async handleCurrentChange(val) {
       axios
-        .get(
-          `https://service.mumbi.xyz/api/Guidebooks/GetGuidebook?PageNumber=${val}`
-        )
+        .get(`https://mumbi.xyz/api/Guidebooks/GetGuidebook?PageNumber=${val}`)
         .then((rs) => {
           this.tableData = rs.data.data;
           this.searchResult = rs.data.data;
@@ -873,7 +964,7 @@ export default {
         });
       } else {
         await axios.post(
-          `https://service.mumbi.xyz/api/GuidebooksType/AddGuidebookType`,
+          `https://mumbi.xyz/api/GuidebooksType/AddGuidebookType`,
           {
             type: this.typeNews,
           }
@@ -883,9 +974,7 @@ export default {
           type: "success",
         });
         await axios
-          .get(
-            `https://service.mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`
-          )
+          .get(`https://mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`)
           .then((rs) => {
             this.tableData1 = rs.data.data;
           })
@@ -908,7 +997,7 @@ export default {
           let NewsId = this.tableData1[this.editedIndex].id;
           try {
             await axios.put(
-              `https://service.mumbi.xyz/api/GuidebooksType/UpdateGuidebookType/` +
+              `https://mumbi.xyz/api/GuidebooksType/UpdateGuidebookType/` +
                 NewsId,
               {
                 id: NewsId,
@@ -916,9 +1005,7 @@ export default {
               }
             );
             await axios
-              .get(
-                `https://service.mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`
-              )
+              .get(`https://mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`)
               .then((rs) => {
                 this.tableData1 = rs.data.data;
               })
@@ -927,7 +1014,7 @@ export default {
                 console.log(e);
               });
             axios
-              .get(`https://service.mumbi.xyz/api/Guidebooks/GetGuidebook`)
+              .get(`https://mumbi.xyz/api/Guidebooks/GetGuidebook`)
               .then((rs) => {
                 this.tableData = rs.data.data;
                 this.totalCount = rs.data.total;
@@ -952,7 +1039,7 @@ export default {
     addGuidebook() {
       this.dialogFormAddVisible = true;
       axios
-        .get(`https://service.mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`)
+        .get(`https://mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`)
         .then((res) => {
           this.listtype = res.data.data;
           this.tableData1 = res.data.data;
@@ -997,14 +1084,14 @@ export default {
             this.NewsIdDelete = row.id;
             axios
               .put(
-                `https://service.mumbi.xyz/api/GuidebooksType/DeleteGuidebookType/` +
+                `https://mumbi.xyz/api/GuidebooksType/DeleteGuidebookType/` +
                   this.NewsIdDelete
               )
               .then((response) => {
                 setTimeout(async () => {
                   await axios
                     .get(
-                      `https://service.mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`
+                      `https://mumbi.xyz/api/GuidebooksType/GetAllGuidebookType`
                     )
                     .then((rs) => {
                       this.tableData1 = rs.data.data;
@@ -1050,4 +1137,7 @@ span {
   word-wrap: normal;
   word-break: normal;
 }
+/* .el-radio-group {
+  margin-top: 10px;
+} */
 </style>

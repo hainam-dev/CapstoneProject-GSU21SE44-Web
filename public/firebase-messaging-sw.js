@@ -1,5 +1,5 @@
 importScripts('https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/8.9.1/firebase-messaging.js');
+// importScripts('https://www.gstatic.com/firebasejs/8.9.1/firebase-messaging.js');
 
 var firebaseConfig = {
     apiKey: "AIzaSyDY-gNiJ0EoSKEAGEdu-alekSF4vLRI43Q",
@@ -12,8 +12,8 @@ var firebaseConfig = {
 }
 
 firebase.initializeApp(firebaseConfig)
-const messaging = firebase.messaging()
-if (typeof messaging.b !== 'undefined') {
-  delete (messaging.b)
-  messaging.useServiceWorker(registration)
-}
+// const messaging = firebase.messaging()
+// if (typeof messaging.b !== 'undefined') {
+//   delete (messaging.b)
+//   messaging.useServiceWorker(registration)
+// }

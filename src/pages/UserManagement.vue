@@ -160,7 +160,7 @@ export default {
   created: function () {
     axios
       .get(
-        `https://service.mumbi.xyz/api/MomInfo/GetListMomInfo`
+        `https://mumbi.xyz/api/MomInfo/GetListMomInfo`
       )
       .then((rs) => {
         this.tableData = rs.data.data;
@@ -195,7 +195,7 @@ export default {
             this.userIdDelete = row.id;
             axios
               .put(
-                `https://service.mumbi.xyz/api/MomInfo/DeleteMomInfo/` +
+                `https://mumbi.xyz/api/MomInfo/DeleteMomInfo/` +
                   this.userIdDelete
               )
               .then((response) => {});
@@ -220,7 +220,7 @@ export default {
       this.NewsIdDelete = row.id;
       await axios
         .get(
-          `https://service.mumbi.xyz/api/ChildInfo/GetChildInfoByMomId/` +
+          `https://mumbi.xyz/api/ChildInfo/GetChildInfoByMomId/` +
             this.NewsIdDelete
         )
         .then((rs) => {
@@ -248,7 +248,7 @@ export default {
       try {
         let result = await axios
           .get(
-            `https://service.mumbi.xyz/api/MomInfo/GetListMomInfo?FullName=${e}`
+            `https://mumbi.xyz/api/MomInfo/GetListMomInfo?FullName=${e}`
           )
           .then((rs) => {
             this.totalCount = rs.data.total;
@@ -264,7 +264,7 @@ export default {
     async handleCurrentChange(val) {
       axios
         .get(
-          `https://service.mumbi.xyz/api/MomInfo/GetListMomInfo?PageNumber=${val}`
+          `https://mumbi.xyz/api/MomInfo/GetListMomInfo?PageNumber=${val}`
         )
         .then((rs) => {
           this.tableData = rs.data.data;

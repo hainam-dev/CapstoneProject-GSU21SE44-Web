@@ -4,7 +4,7 @@ export default {
   pageSize:3,
   // backendIp:"https:
   // backendIp:"https://192.168.1.13:44371",
-  backendIp:"https://service.mumbi.xyz",
+  backendIp:"https://mumbi.xyz",
   colors: {
     default: "#344675",
     primary: "#42b883",

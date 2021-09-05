@@ -9,7 +9,7 @@ module.exports = {
     /ckeditor5-[^/\\]+[/\\]src[/\\].+\.js$/
   ],
   devServer: {
-    proxy: 'https://service.mumbi.xyz',
+    proxy: 'https://mumbi.xyz',
     // '^/api': {
     //   target: '<url>',
     //   ws: true,

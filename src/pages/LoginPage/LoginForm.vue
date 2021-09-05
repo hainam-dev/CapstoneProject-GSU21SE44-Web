@@ -94,7 +94,7 @@ export default {
           });
           console.log('Token2'+token2)
           let loginResult = await axios.post(
-            `https://service.mumbi.xyz/api/Authentication/Authenticate/`,
+            `https://mumbi.xyz/api/Authentication/Authenticate/`,
             {
               idToken: token,
               fcmToken: token2,
@@ -113,7 +113,7 @@ export default {
               name: "QUẢN LÝ NGƯỜI DÙNG",
             });
             // let tokenResult = await axios.get(
-            //   `https://service.mumbi.xyz/api/Token/GetTokenBy/${userInfo.id}`
+            //   `https://mumbi.xyz/api/Token/GetTokenBy/${userInfo.id}`
             // );
             // localStorage.setItem("tokenInfo", JSON.stringify(tokenResult));
           }
